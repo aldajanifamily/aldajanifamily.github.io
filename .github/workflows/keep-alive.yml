@@ -1,29 +1,50 @@
-# يبقي قاعدة بيانات Supabase المجانية شغّالة (تتوقف تلقائيًا بعد أسبوع بدون نشاط)
-# ويحافظ على نشاط المستودع حتى لا يوقف GitHub المهام المجدولة
 name: keep-alive
 on:
   schedule:
-    - cron: '17 6 */3 * *'   # كل 3 أيام
+    - cron: '17 6 */3 * *'
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
-  ping:
+  guard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Ping Supabase
+      - name: Ping + snapshot
+        shell: bash
         run: |
+          set +e +o pipefail
           URL=$(grep -oE 'https://[a-z0-9]+\.supabase\.co' config.js | head -1)
           KEY=$(grep -oE 'sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9._-]+' config.js | head -1)
-          if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "config.js بدون مفاتيح"; exit 0; fi
-          if [[ "$KEY" == sb_* ]]; then AUTH=(); else AUTH=(-H "Authorization: Bearer $KEY"); fi
-          curl -sf "$URL/rest/v1/settings?select=key&limit=1" -H "apikey: $KEY" "${AUTH[@]}" && echo " ok"
-      - name: Keep repository active
+          echo "URL: $URL"; echo "KEY: ${KEY:0:18}..."
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "config.js has no keys"; exit 0; fi
+          H=(-H "apikey: $KEY"); [[ "$KEY" == sb_* ]] || H+=(-H "Authorization: Bearer $KEY")
+          c1=$(curl -s -o /tmp/people.json   -w '%{http_code}' "$URL/rest/v1/people_public?select=*&order=id&limit=20000" "${H[@]}")
+          c2=$(curl -s -o /tmp/settings.json -w '%{http_code}' "$URL/rest/v1/settings?select=*" "${H[@]}")
+          c3=$(curl -s -o /tmp/pages.json    -w '%{http_code}' "$URL/rest/v1/pages?select=*&published=eq.true&order=sort" "${H[@]}")
+          echo "HTTP people=$c1 settings=$c2 pages=$c3"
+          n=$(jq length /tmp/people.json 2>/dev/null || echo 0)
+          if [ "$c1" = 200 ] && [ "$c2" = 200 ] && [ "$c3" = 200 ] && [ "$n" -gt 0 ]; then
+            mkdir -p media
+            jq -r '.[] | (.photo // empty), ((.martyr_info.photos // [])[])' /tmp/people.json | grep '^https' | sort -u > /tmp/urls.txt || true
+            while read -r u; do [ -z "$u" ] && continue; f="media/$(basename "${u%%\?*}")"; [ -f "$f" ] || curl -sfL "$u" -o "$f" || true; done < /tmp/urls.txt
+            jq -n --slurpfile p /tmp/people.json --slurpfile s /tmp/settings.json --slurpfile g /tmp/pages.json '
+              def loc: if type=="string" and startswith("http") then "media/" + (split("/")|last|split("?")[0]) else . end;
+
+              {generated_at:(now|todate),
+               people: ($p[0] | map(.photo |= loc | .martyr_info.photos |= ((. // []) | map(loc)))),
+               settings: $s[0], pages: $g[0]}' > snapshot.json
+            echo "snapshot ok: $(jq '.people|length' snapshot.json) people"
+          else
+            echo "database unreachable - kept previous snapshot"; head -c 300 /tmp/people.json
+          fi
+      - name: Commit
         run: |
           date -u > .github/last-ping.txt
           git config user.name "keep-alive-bot"
           git config user.email "actions@users.noreply.github.com"
           git add .github/last-ping.txt
-          git commit -m "keep-alive" || true
-          git push || true
+          if [ -f snapshot.json ]; then git add snapshot.json; fi
+          if [ -d media ] && [ -n "$(ls -A media)" ]; then git add media; fi
+          git commit -m "keep-alive + snapshot" || true
+          git push
