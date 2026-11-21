@@ -489,6 +489,7 @@ const ANC=SETTINGS.ancestors||[];
 const NOW=new Date().getFullYear();
 const ALL=RAW.map(r=>Object.assign({},r,{children:[]}));
 const BYID=new Map(ALL.map(p=>[p.id,p]));
+ALL.forEach(p=>{const par=BYID.get(p.p);if(!par||!par.sp||par.sp.length!==1)return;if(par.g==='f'&&!p.fa)p.fa=par.sp[0];else if(par.g==='m'&&!p.mo)p.mo=par.sp[0]});
 ALL.forEach(p=>{p.father=p.p>=0?BYID.get(p.p)||null:null;if(p.father)p.father.children.push(p)});
 ALL.forEach(p=>{let d=0,c=p;while(c.father){d++;c=c.father}p.gen=d;p.dead=!!(p.dy||p.dd||p.m)});
 const ROOT=ALL.find(p=>!p.father);

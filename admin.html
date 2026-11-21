@@ -201,7 +201,7 @@ if(LIVE&&await S.me())await enter();
 
 /* ---------- data ---------- */
 async function loadAll(){P=await S.people();BY=new Map(P.map(p=>[p.id,p]));SETTINGS=await S.settings();SUBS=await S.submissions().catch(()=>[]);index()}
-function index(){P.forEach(p=>{p._k=[]});P.forEach(p=>{const f=BY.get(p.p);if(f)f._k.push(p)});P.forEach(p=>{let d=0,c=p;while(c&&c.p>=0&&BY.get(c.p)){d++;c=BY.get(c.p)}p._gen=d;p._dead=!!(p.dd||p.m)})}
+function index(){P.forEach(p=>{const par=BY.get(p.p);if(!par||!par.sp||par.sp.length!==1)return;if(par.g==='f'&&!p.fa)p.fa=par.sp[0];else if(par.g==='m'&&!p.mo)p.mo=par.sp[0]});P.forEach(p=>{p._k=[]});P.forEach(p=>{const f=BY.get(p.p);if(f)f._k.push(p)});P.forEach(p=>{let d=0,c=p;while(c&&c.p>=0&&BY.get(c.p)){d++;c=BY.get(c.p)}p._gen=d;p._dead=!!(p.dd||p.m)})}
 const title=p=>(p.m?(p.g==='f'?'الشهيدة ':'الشهيد '):'')+p.n;
 function lineage(p,max=5){const a=[p.n];let c=p;while(BY.get(c.p)&&a.length<max){const f=BY.get(c.p);if(f.g==='f'){if(c.fa)a.push(c.fa);break}a.push(f.n);c=f}let s=a[0];for(let i=1;i<a.length;i++)s+=(i===1&&p.g==='f'?' بنت ':' بن ')+a[i];return s}
 const branchOf=p=>{let c=p;while(BY.get(c.p)&&BY.get(BY.get(c.p).p))c=BY.get(c.p);return BY.get(c.p)?c:null};
@@ -300,6 +300,7 @@ function editPerson(p,parentId,focus){const isNew=!p;p=p?JSON.parse(JSON.stringi
   <datalist id="parList">${P.filter(x=>x.id!==p.id).map(x=>`<option value="${esc(parentOpt(x))}">`).join('')}</datalist>
   <datalist id="resList">${[...new Set(P.map(x=>x.res).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join('')}</datalist>`);
   const F=$('#pf');F.g.value=p.g||'m';
+  const autoPar=()=>{const pr=BY.get(parseInt(F.par.value));if(!pr||!pr.sp||pr.sp.length!==1)return;if(pr.g==='f'&&!F.fa.value.trim())F.fa.value=pr.sp[0];if(pr.g==='m'&&!F.mo.value.trim())F.mo.value=pr.sp[0]};F.par.addEventListener('change',autoPar);autoPar();
   document.querySelectorAll('[data-x]').forEach(b=>b.onclick=closeDrawer);
   const rmBind=()=>document.querySelectorAll('#spL [data-rm]').forEach(b=>b.onclick=()=>b.parentNode.remove());rmBind();
   $('#spAdd').onclick=()=>{$('#spL').insertAdjacentHTML('beforeend','<div class="row"><input><button type="button" class="btn sm danger" data-rm>✕</button></div>');rmBind()};
