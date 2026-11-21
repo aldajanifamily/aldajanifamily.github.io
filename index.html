@@ -540,7 +540,9 @@ ALL.forEach(p=>{const src=(p.sp||[]).map(v=>[v,'sp']).concat(p.father&&p.father.
     if(ex){if(nm.length>ex.n.length)ex.n=nm;if(k==='sp'&&ex.k!=='sp'){ex.id=p.id;ex.k='sp'}return}
     INLAW.push({key,id:p.id,n:nm,f:!!m[1],k})})});
 const ilRel=x=>{const s=BYID.get(x.id),of=`${title(s)} ${s.g==='f'?'بنت':'بن'} ${s.father?s.father.n:''}`;return x.k==='sp'?(x.f?'زوجة ':'زوج ')+of:(x.f?'والدة ':'والد ')+of};
+INLAW.forEach(x=>{const s=BYID.get(x.id);x.d=(s&&s.mi&&s.mi.inlaw&&s.mi.inlaw[x.key])||{};x.photo=x.d.photos&&x.d.photos[0]});
 const MTOT=MART.length+INLAW.length;
+const escM=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const S={total:ALL.length,gens:GENS,cities:CITYC.length,martyrs:MTOT};
 document.querySelectorAll('.rootYear').forEach(e=>e.textContent=ROOT.by);
 function mbio(p){
@@ -805,9 +807,9 @@ document.getElementById('mfilters').innerHTML=ERA.map((e,i)=>`<button class="${i
 function renderMart(i=0){
   const list=MART.filter(ERA[i][1]);
   document.getElementById('mgrid').innerHTML=list.map(p=>`<article class="mcard" data-id="${p.id}"><div class="mph">${phHTML(p)}<span class="yr">${mMeta(p)}</span></div><h4>${title(p)}</h4><div class="ml">${lineage(p,3)}</div><p>${mbio(p)}</p><span class="more">${F(p)?'سيرتها':'سيرته'} ←</span></article>`).join('')
-   +(ERA[i][2]?INLAW.map((x,j)=>`<article class="mcard il" data-il="${j}"><div class="mph"><div class="ph"><span>${x.n[0]}</span></div>${leafSvg}<span class="yr">صهر العائلة</span></div><h4>${x.f?'الشهيدة':'الشهيد'} ${x.n}</h4><div class="ml">${ilRel(x)}</div><span class="more">في الشجرة ←</span></article>`).join(''):'');
+   +(ERA[i][2]?INLAW.map((x,j)=>`<article class="mcard il" data-il="${j}"><div class="mph">${x.photo?`<img src="${x.photo}" alt="" loading="lazy" decoding="async">`:`<div class="ph"><span>${x.n[0]}</span></div>${leafSvg}`}<span class="yr">${x.d.dd?LTR(x.d.dd):'صهر العائلة'}</span></div><h4>${x.f?'الشهيدة':'الشهيد'} ${x.n}</h4><div class="ml">${ilRel(x)}</div>${x.d.bio?`<p>${escM(x.d.bio)}</p>`:''}<span class="more">${x.d.bio||x.photo?(x.f?'سيرتها':'سيرته'):'التفاصيل'} ←</span></article>`).join(''):'');
   document.querySelectorAll('.mcard[data-id]').forEach(c=>c.onclick=()=>openMartyr(+c.dataset.id));
-  document.querySelectorAll('.mcard[data-il]').forEach(c=>c.onclick=()=>{scrollToEl('#tree-sec');setTimeout(()=>goTo(INLAW[+c.dataset.il].id),900)});
+  document.querySelectorAll('.mcard[data-il]').forEach(c=>c.onclick=()=>openInlaw(INLAW[+c.dataset.il]));
   if(window.gsap)gsap.from('.mcard',{y:50,opacity:0,duration:.8,stagger:.04,ease:'power3.out'});
 }
 document.querySelectorAll('#mfilters button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#mfilters button').forEach(x=>x.classList.toggle('on',x===b));renderMart(+b.dataset.i)});
@@ -827,6 +829,20 @@ function openMartyr(id){
   modal.classList.add('open');if(window.lenis)lenis.stop();
   document.getElementById('mTree').onclick=()=>{closeModal();scrollToEl('#tree-sec');setTimeout(()=>goTo(p.id),900)};
   document.getElementById('mSend').onclick=()=>{closeModal();openSubmit('martyr',title(p)+' — '+lineage(p,4))};
+}
+function openInlaw(x){const d=x.d,f=x.f,s=BYID.get(x.id);curM=null;
+  document.getElementById('mmPh').innerHTML=x.photo?`<img src="${x.photo}" alt="">`:`<div class="ph"><span>${x.n[0]}</span></div>${leafSvg}`;
+  const fact=(l,v)=>v?`<div class="fact"><span>${l}</span><b>${v}</b></div>`:'';
+  document.getElementById('mmTxt').innerHTML=`<div class="kicker">شهداء العائلة · من أصهار العائلة</div><h3>${f?'الشهيدة':'الشهيد'} ${escM(x.n)}</h3><div class="ml">${ilRel(x)}</div>
+   <div class="facts">${fact(f?'تاريخ استشهادها':'تاريخ استشهاده',d.dd?LTR(d.dd):'')}</div>
+   ${d.bio?`<p class="bio">${escM(d.bio)}</p>`:''}
+   <div class="memory">${d.memories?escM(d.memories):`مساحة لكلمات الأهل والأصدقاء عن${f?'ها':'ه'}، وصور ومواقف من حيات${f?'ها':'ه'}.`}</div>
+   ${d.photos&&d.photos.length>1?`<div class="mgal">${d.photos.map(u=>`<img src="${u}" alt="" loading="lazy">`).join('')}</div>`:''}
+   ${d.video?`<a class="btn ghost" style="color:var(--gold2);margin-top:10px" href="${d.video}" target="_blank" rel="noopener">▶ مشاهدة الفيديو</a>`:''}
+   <div class="pact"><button class="btn gold" id="mTree">${x.k==='sp'?(s.g==='f'?'عرض زوجته':'عرض زوجها'):(f?'عرض أبنائها':'عرض أبنائه')} في الشجرة</button><button class="btn ghost" style="color:var(--cream)" id="mSend">أرسل صورًا أو ذكرى</button></div>`;
+  modal.classList.add('open');if(window.lenis)lenis.stop();
+  document.getElementById('mTree').onclick=()=>{closeModal();scrollToEl('#tree-sec');setTimeout(()=>goTo(x.id),900)};
+  document.getElementById('mSend').onclick=()=>{closeModal();openSubmit('martyr',(f?'الشهيدة ':'الشهيد ')+x.n+' — '+ilRel(x))};
 }
 function closeModal(){modal.classList.remove('open');if(window.lenis)lenis.start()}
 document.getElementById('mclose').onclick=closeModal;modal.onclick=e=>{if(e.target===modal)closeModal()};

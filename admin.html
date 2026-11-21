@@ -317,7 +317,7 @@ function editPerson(p,parentId,focus){const isNew=!p;p=p?JSON.parse(JSON.stringi
     if(pid<0&&P.some(x=>x.p<0&&x.id!==p.id))return toast('يوجد جد أول بالفعل. اختر الأب أو الأم.');
     const o={id:isNew?null:p.id,n:F.n.value.trim(),g:F.g.value,p:pid,bd:F.bd.value.trim(),dd:F.dd.value.trim(),res:F.res.value.trim(),city:F.city.value.trim(),edu:F.edu.value.trim(),work:F.work.value.trim(),fa:F.fa.value.trim(),mo:F.mo.value.trim(),bio:F.bio.value.trim(),photo,
       notes:F.notes.value.split('\n').map(x=>x.trim()).filter(Boolean),sp:[...document.querySelectorAll('#spL input')].map(i=>i.value.trim()).filter(Boolean),m:F.m.checked,
-      mi:F.m.checked?{place:F.mplace.value.trim(),video:F.mvideo.value.trim(),bio:F.mbio.value.trim(),memories:F.mmem.value.trim(),photos}:{},hf:[...F.querySelectorAll('[name=hf]:checked')].map(c=>c.value),sort:p.sort||0};
+      mi:Object.assign(F.m.checked?{place:F.mplace.value.trim(),video:F.mvideo.value.trim(),bio:F.mbio.value.trim(),memories:F.mmem.value.trim(),photos}:{},mi.inlaw?{inlaw:mi.inlaw}:{}),hf:[...F.querySelectorAll('[name=hf]:checked')].map(c=>c.value),sort:p.sort||0};
     Object.keys(o).forEach(k=>{if(o[k]===''||(Array.isArray(o[k])&&!o[k].length))delete o[k]});if(o.mi){Object.keys(o.mi).forEach(k=>{if(!o.mi[k]||(Array.isArray(o.mi[k])&&!o.mi[k].length))delete o.mi[k]});if(!Object.keys(o.mi).length)delete o.mi}
     if(o.m&&!can('martyrs')&&!(p.m))return toast('ليس لديك صلاحية تعديل الشهداء');
     try{const saved=await S.savePerson(o);await log(isNew?'إضافة فرد':'تعديل بيانات',title(saved));await loadAll();closeDrawer();toast('تم الحفظ');refresh()}catch(err){toast('خطأ: '+err.message)}};
@@ -331,8 +331,40 @@ R.martyrs=()=>{const M=P.filter(p=>p.m).sort((a,b)=>String(b.dd||'').slice(-4)-S
   $('#view').innerHTML=`<div class="note">اضغط على أي شهيد لإضافة صوره ونبذته وذكريات الأهل ورابط فيديو. لإضافة شهيد جديد: افتح بيانات الشخص وفعّل خيار «شهيد».</div>
   <div class="tools"><input type="search" id="mq" placeholder="ابحث عن شخص لتعيينه شهيدًا…" list="allList"><button class="btn pri" id="mset">تعيين كشهيد</button><datalist id="allList">${P.filter(p=>!p.m).map(p=>`<option value="${esc(parentOpt(p))}">`).join('')}</datalist></div>
   <div class="mgrid">${M.map(p=>{const ph=p.photo||(p.mi&&p.mi.photos&&p.mi.photos[0]);return`<div class="mc" data-id="${p.id}"><div class="ph" style="${ph?`background-image:url('${ph}')`:''}">${ph?'':esc(p.n[0])}</div><b>${esc(title(p))}</b><small>${esc(p.dd||'غير مؤرّخ')}</small><br><small>${p.mi&&(p.mi.bio||p.mi.photos)?'✓ له صفحة مكتملة':'بحاجة لصور ونبذة'}</small></div>`}).join('')}</div>`;
-  document.querySelectorAll('.mc').forEach(c=>c.onclick=()=>editPerson(BY.get(+c.dataset.id),null,'m'));
+  const IL=inlaws();
+  if(IL.length)$('#view').insertAdjacentHTML('beforeend',`<h3 style="margin:34px 0 6px">أصهار العائلة الشهداء (${IL.length})</h3><div class="note">هؤلاء ليسوا ضمن الشجرة، لكنهم يظهرون في «الملتقى الجنة». اضغط على أي واحد لإضافة صورته ونبذته.</div>
+   <div class="mgrid">${IL.map((x,j)=>{const d=ilData(x),ph=d.photos&&d.photos[0];return`<div class="mc" data-il="${j}"><div class="ph" style="${ph?`background-image:url('${ph}')`:''}">${ph?'':esc(x.n[0])}</div><b>${x.f?'الشهيدة':'الشهيد'} ${esc(x.n)}</b><small>${esc(ilRel(x))}</small><br><small>${d.bio||ph?'✓ له صفحة':'بحاجة لصور ونبذة'}</small></div>`}).join('')}</div>`);
+  document.querySelectorAll('.mc[data-id]').forEach(c=>c.onclick=()=>editPerson(BY.get(+c.dataset.id),null,'m'));
+  document.querySelectorAll('.mc[data-il]').forEach(c=>c.onclick=()=>editInlaw(IL[+c.dataset.il]));
   $('#mset').onclick=()=>{const id=parseInt($('#mq').value);if(!BY.has(id))return toast('اختر الشخص من القائمة');const p=BY.get(id);editPerson({...p,m:true},null,'m')}};
+
+/* ---- in-law martyrs (stored on the related family member: martyr_info.inlaw[key]) ---- */
+const nA=t=>String(t||'').replace(/[إأآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').trim();
+function inlaws(){const out=[];P.forEach(p=>{const par=BY.get(p.p);const src=(p.sp||[]).map(v=>[v,'sp']).concat(par&&par.g==='f'&&p.fa?[[p.fa,'fa']]:[]).concat(par&&par.g==='m'&&p.mo?[[p.mo,'mo']]:[]);
+  src.forEach(([v,k])=>{const m=String(v).match(/^الشهيد(ة)?\s+(.+)$/);if(!m)return;const nm=m[2].trim(),w=nA(nm).split(/\s+/);
+    const isNode=P.some(q=>{const qf=BY.get(q.p);return q.m&&nA(q.n)===w[0]&&w[1]&&qf&&(nA(qf.n)===w[1]||nA(q.fa).startsWith(w[1]))});if(isNode)return;
+    const key=w.slice(0,2).join(' '),ex=out.find(x=>x.key===key);
+    if(ex){if(nm.length>ex.n.length)ex.n=nm;if(k==='sp'&&ex.k!=='sp'){ex.id=p.id;ex.k='sp'}return}
+    out.push({key,id:p.id,n:nm,f:!!m[1],k})})});return out}
+const ilRel=x=>{const s=BY.get(x.id),sf=BY.get(s.p);const of=`${s.n} ${s.g==='f'?'بنت':'بن'} ${sf?sf.n:''}`;return x.k==='sp'?(x.f?'زوجة ':'زوج ')+of:(x.f?'والدة ':'والد ')+of};
+const ilData=x=>{const s=BY.get(x.id);return(s&&s.mi&&s.mi.inlaw&&s.mi.inlaw[x.key])||{}};
+function editInlaw(x){const d=ilData(x);let photos=(d.photos||[]).slice();
+  openDrawer(`<div class="dh"><h3>${x.f?'الشهيدة':'الشهيد'} ${esc(x.n)}</h3><button class="btn sm" data-x>✕</button></div><form class="db" id="ilf">
+   <div class="note" style="margin-top:0">${esc(ilRel(x))} — من أصهار العائلة</div>
+   <label class="f">الصور <small style="color:var(--muted)">(أول صورة هي الرئيسية)</small></label><div id="ilPh" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+   <label class="btn sm" style="display:inline-block;margin-bottom:14px">+ رفع صور<input type="file" id="ilUp" accept="image/*" multiple hidden></label>
+   <label class="f">تاريخ الاستشهاد <small style="color:var(--muted)">(مثل 16-10-2023)</small><input name="dd" dir="ltr" value="${esc(d.dd||'')}"></label>
+   <label class="f">نبذة<textarea name="bio" rows="4">${esc(d.bio||'')}</textarea></label>
+   <label class="f">ذكريات الأهل<textarea name="mem" rows="3">${esc(d.memories||'')}</textarea></label>
+   <label class="f">رابط فيديو<input name="video" dir="ltr" value="${esc(d.video||'')}"></label></form>
+   <div class="df"><button class="btn pri" id="ilSave">حفظ</button><button class="btn" data-x>إلغاء</button></div>`);
+  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=closeDrawer);
+  const draw=()=>{$('#ilPh').innerHTML=photos.map((u,i)=>`<div style="position:relative;width:84px;height:84px;border-radius:12px;background:center/cover url('${u}')"><button type="button" class="btn sm danger" data-rm="${i}" style="position:absolute;top:4px;left:4px;padding:2px 8px">✕</button></div>`).join('')||'<small style="color:var(--muted)">لا توجد صور بعد</small>';
+    document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{photos.splice(+b.dataset.rm,1);draw()})};draw();
+  $('#ilUp').onchange=async e=>{toast('جارٍ رفع الصور…');for(const f of e.target.files){try{photos.push(await S.upload(f))}catch(err){toast(err.message)}}draw()};
+  $('#ilSave').onclick=async()=>{const F=$('#ilf'),s=BY.get(x.id),o=JSON.parse(JSON.stringify(s));o.mi=o.mi||{};o.mi.inlaw=o.mi.inlaw||{};
+    const v={photos,dd:F.dd.value.trim(),bio:F.bio.value.trim(),memories:F.mem.value.trim(),video:F.video.value.trim(),name:x.n};Object.keys(v).forEach(k=>{if(!v[k]||(Array.isArray(v[k])&&!v[k].length))delete v[k]});
+    o.mi.inlaw[x.key]=v;try{await S.savePerson(o);await log('تعديل صهر شهيد',x.n);await loadAll();closeDrawer();toast('تم الحفظ');R.martyrs()}catch(err){toast('خطأ: '+err.message)}}}
 
 /* ---- submissions ---- */
 let SF='new';
