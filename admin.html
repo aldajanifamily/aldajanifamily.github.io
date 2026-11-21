@@ -6,9 +6,9 @@
 <title>لوحة التحكم · شجرة العائلة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://ijswhycsvaanowexnxcd.supabase.co" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="data.js"></script>
 <script src="store.js"></script>
 <style>
 :root{--cream:#F3ECDF;--paper:#FBF8F2;--line:#E6DCCB;--ink:#18231B;--ink2:#3A463C;--muted:#7F8577;--olive:#2F3D22;--olive2:#5E7238;--gold:#C9A048;--gold2:#E8CB86;--terra:#B4532F;--mg:#1F9D5E;--red:#C0392B}
@@ -193,14 +193,14 @@ if(settings0.familyName){$('#lbrand').textContent=settings0.familyName;$('#sbran
 $('#lmode').innerHTML=LIVE?'<span class="mode live">● متصل بقاعدة البيانات</span>':'<span class="mode">وضع تجريبي — البيانات تُحفظ على هذا الجهاز فقط</span>';
 $('#lhint').textContent=LIVE?'ادخل باسم المستخدم وكلمة المرور اللي وصلتك من إدارة الموقع.':'للتجربة: اكتب أي إيميل واضغط دخول (بدون كلمة مرور).';
 if(!LIVE){$('#lform').email.value='admin@demo'}
-async function enter(){ME=await S.me();if(!ME||ME.role==='none'||!ME.role){if(LIVE&&ME)toast('هذا الحساب غير مضاف كمدير. اطلب من المدير العام إضافته.');return false}$('#login').classList.add('hidden');$('#app').classList.remove('hidden');await loadAll();buildNav();go(location.hash.slice(1)||'dash');return true}
-$('#lform').onsubmit=async e=>{e.preventDefault();try{await S.signIn(loginId(e.target.email.value),e.target.password.value);await enter()}catch(err){toast('تعذّر الدخول: '+err.message)}};
+async function enter(pre){ME=pre||await S.me();if(!ME||ME.role==='none'||!ME.role){if(LIVE&&ME)toast('هذا الحساب غير مضاف كمدير. اطلب من المدير العام إضافته.');return false}$('#login').classList.add('hidden');$('#app').classList.remove('hidden');$('#view').innerHTML='<div class="empty card" style="padding:60px 20px;text-align:center">⏳ جارٍ تحميل البيانات…</div>';try{await loadAll()}catch(err){$('#view').innerHTML='<div class="empty card" style="padding:40px 20px;text-align:center">تعذّر التحميل: '+esc(err.message)+'<br><br><button class="btn pri" onclick="location.reload()">إعادة المحاولة</button></div>';return false}buildNav();go(location.hash.slice(1)||'dash');return true}
+$('#lform').onsubmit=async e=>{e.preventDefault();const bt=e.target.querySelector('[type=submit]');bt.disabled=true;const bl=bt.textContent;bt.textContent='جارٍ الدخول…';try{const m=await S.signIn(loginId(e.target.email.value),e.target.password.value);await enter(m)}catch(err){toast('تعذّر الدخول: '+err.message)}finally{bt.disabled=false;bt.textContent=bl}};
 $('#lsignup').onclick=async()=>{const f=$('#lform');if(!f.email.value||f.password.value.length<6)return toast('اكتب إيميلك وكلمة مرور من 6 أحرف على الأقل');try{await S.signUp(f.email.value.trim().toLowerCase(),f.password.value);toast('تم إنشاء الحساب. إذا طُلب منك تأكيد الإيميل افتح بريدك ثم سجّل الدخول.');await enter()}catch(err){toast(err.message)}};
 $('#logout').onclick=async e=>{e.preventDefault();await S.signOut();location.reload()};
-if(LIVE&&await S.me())await enter();
+if(LIVE){const m0=await S.me().catch(()=>null);if(m0)await enter(m0)}
 
 /* ---------- data ---------- */
-async function loadAll(){P=await S.people();BY=new Map(P.map(p=>[p.id,p]));SETTINGS=await S.settings();SUBS=await S.submissions().catch(()=>[]);index()}
+async function loadAll(){const[a,b,c]=await Promise.all([S.people(),S.settings(),S.submissions().catch(()=>[])]);P=a;BY=new Map(P.map(p=>[p.id,p]));SETTINGS=b;SUBS=c;index()}
 function index(){P.forEach(p=>{const par=BY.get(p.p);if(!par||!par.sp||par.sp.length!==1)return;if(par.g==='f'&&!p.fa)p.fa=par.sp[0];else if(par.g==='m'&&!p.mo)p.mo=par.sp[0]});P.forEach(p=>{p._k=[]});P.forEach(p=>{const f=BY.get(p.p);if(f)f._k.push(p)});P.forEach(p=>{let d=0,c=p;while(c&&c.p>=0&&BY.get(c.p)){d++;c=BY.get(c.p)}p._gen=d;p._dead=!!(p.dd||p.m)})}
 const title=p=>(p.m?(p.g==='f'?'الشهيدة ':'الشهيد '):'')+p.n;
 function lineage(p,max=5){const a=[p.n];let c=p;while(BY.get(c.p)&&a.length<max){const f=BY.get(c.p);if(f.g==='f'){if(c.fa)a.push(c.fa);break}a.push(f.n);c=f}let s=a[0];for(let i=1;i<a.length;i++)s+=(i===1&&p.g==='f'?' بنت ':' بن ')+a[i];return s}
@@ -465,14 +465,14 @@ R.settings=()=>{const s=SETTINGS;
    <div class="card"><h3>النسخ الاحتياطي والبيانات</h3>
     <p style="font-size:14px;line-height:1.9;color:var(--ink2)">انسخ كل بيانات الموقع كملف JSON واحتفظ به. ويمكنك استعادته لاحقًا.</p>
     <div class="tools"><button class="btn" id="exp">⬇ تنزيل نسخة احتياطية</button><button class="btn" id="expc">نسخ البيانات</button><label class="btn">⬆ استعادة من ملف<input type="file" accept=".json" id="imp" hidden></label></div>
-    ${LIVE?`<div class="note">قاعدة البيانات فيها ${P.length} فرد. لنقل بيانات الشجرة الأصلية (${(window.SEED_PEOPLE||[]).length} فرد) إلى قاعدة البيانات لأول مرة اضغط:</div><button class="btn gold" id="seed">نقل بيانات الشجرة إلى قاعدة البيانات</button>`:`<button class="btn danger" id="reset">إعادة البيانات التجريبية للأصل</button>`}
+    ${LIVE?`<div class="note">قاعدة البيانات فيها ${P.length} فرد. لنقل بيانات الشجرة الأصلية إلى قاعدة البيانات لأول مرة اضغط:</div><button class="btn gold" id="seed">نقل بيانات الشجرة إلى قاعدة البيانات</button>`:`<button class="btn danger" id="reset">إعادة البيانات التجريبية للأصل</button>`}
    </div></div>`;
   $('#sf').onsubmit=async e=>{e.preventDefault();const f=e.target;const o=Object.assign({},SETTINGS,{familyName:f.familyName.value.trim(),kicker:f.kicker.value.trim(),verse:f.verse.value.trim(),ancestors:f.ancestors.value.split(/[،,]/).map(x=>x.trim()).filter(Boolean),whatsapp:f.whatsapp.value.trim(),email:f.email.value.trim()});await S.saveSettings(o);SETTINGS=o;await log('تعديل الإعدادات','');toast('تم الحفظ')};
   const dump=async()=>JSON.stringify(await S.exportAll(),null,1);
   $('#exp').onclick=async()=>{try{const b=new Blob([await dump()],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='family-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove()}catch(e){toast('التنزيل غير متاح هنا — استخدم «نسخ البيانات»')}};
   $('#expc').onclick=async()=>{try{await navigator.clipboard.writeText(await dump());toast('تم نسخ البيانات')}catch(e){toast('تعذّر النسخ')}};
   $('#imp').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());if(!o.people)throw new Error('ملف غير صالح');await S.importAll(o);await log('استعادة نسخة احتياطية',o.people.length+' فرد');await loadAll();toast('تمت الاستعادة');R.settings()}catch(err){toast('خطأ: '+err.message)}};
-  $('#seed')&&($('#seed').onclick=async()=>{if(!confirmBox('نقل بيانات الشجرة الأصلية؟'))return;try{await S.importAll({people:window.SEED_PEOPLE,pages:window.SEED_PAGES,settings:window.SEED_SETTINGS});await log('نقل البيانات الأولية','');await loadAll();toast('تم نقل البيانات');R.settings()}catch(err){toast('خطأ: '+err.message)}});
+  $('#seed')&&($('#seed').onclick=async()=>{if(!confirmBox('نقل بيانات الشجرة الأصلية؟'))return;try{if(!window.SEED_PEOPLE)await new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='data.js';sc.onload=ok;sc.onerror=()=>no(new Error('ملف data.js غير موجود'));document.head.appendChild(sc)});await S.importAll({people:window.SEED_PEOPLE,pages:window.SEED_PAGES,settings:window.SEED_SETTINGS});await log('نقل البيانات الأولية','');await loadAll();toast('تم نقل البيانات');R.settings()}catch(err){toast('خطأ: '+err.message)}});
   $('#reset')&&($('#reset').onclick=async()=>{if(!confirmBox('إعادة البيانات التجريبية؟ ستضيع تعديلاتك على هذا الجهاز'))return;await S.reset();await S.signIn('admin@demo');await loadAll();toast('تمت الإعادة');R.settings()})};
 
 addEventListener('hashchange',()=>{if(ME){const v=location.hash.slice(1);if(R[v]&&v!==CUR)go(v)}});

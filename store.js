@@ -114,7 +114,7 @@
       async signIn(email,password){chk(await sb.auth.signInWithPassword({email,password}));return api.me()},
       async signUp(email,password){chk(await sb.auth.signUp({email,password}));return api.me()},
       async signOut(){await sb.auth.signOut();ME=null},
-      async me(){const u=(await sb.auth.getUser()).data.user;if(!u)return null;const a=chk(await sb.from('admins').select('*').eq('email',u.email.toLowerCase()));ME=a[0]?Object.assign({},a[0]):{email:u.email,role:'none',perms:[]};return ME},
+      async me(){const ss=(await sb.auth.getSession()).data.session;const u=ss&&ss.user;if(!u)return null;const a=chk(await sb.from('admins').select('*').eq('email',u.email.toLowerCase()));ME=a[0]?Object.assign({},a[0]):{email:u.email,role:'none',perms:[]};return ME},
       async exportAll(){return{people:(await api.people()),pages:await api.pages(),settings:await api.settings(),submissions:await api.submissions(),admins:await api.admins()}},
       async importAll(o){const rows=o.people.map(toRow);rows.sort((a,b)=>(a.parent_id??-1)-(b.parent_id??-1));
         // insert parents before children
