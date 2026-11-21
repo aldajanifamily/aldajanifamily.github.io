@@ -143,11 +143,11 @@ pre.code{direction:ltr;text-align:left;background:#1d241e;color:#E8E4D6;border-r
     <div class="brand" id="lbrand">آل الدجني</div>
     <h1>لوحة تحكم شجرة العائلة</h1>
     <div id="lmode" style="margin-bottom:16px"></div>
-    <label class="f">البريد الإلكتروني<input name="email" type="email" required autocomplete="username"></label>
+    <label class="f">اسم المستخدم <small style="color:var(--muted)">(أو الإيميل)</small><input name="email" type="text" dir="ltr" required autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="مثال: ahmad"></label>
     <label class="f">كلمة المرور<input name="password" type="password" autocomplete="current-password"></label>
     <button class="btn pri wide" type="submit">دخول</button>
     <div style="margin-top:12px;font-size:13px;color:var(--muted);line-height:1.8" id="lhint"></div>
-    <button class="btn wide" type="button" id="lsignup" style="margin-top:8px">أول مرة؟ أنشئ كلمة مرور لحسابك</button>
+    <button class="btn wide hidden" type="button" id="lsignup" style="margin-top:8px">أول مرة؟ أنشئ كلمة مرور لحسابك</button>
   </form>
 </div>
 
@@ -184,13 +184,17 @@ const S=window.Store,LIVE=S.mode==='supabase';
 let ME=null,P=[],BY=new Map(),SETTINGS={},SUBS=[];
 
 /* ---------- login ---------- */
+const UDOM='aldajanifamily.github.io';
+const loginId=v=>{v=String(v||'').trim().toLowerCase();return v.includes('@')?v:v+'@'+UDOM};
+const uname=e=>String(e||'').toLowerCase().endsWith('@'+UDOM)?String(e).split('@')[0]:String(e||'');
+const genPass=()=>{const a='abcdefghjkmnpqrstuvwxyz',d='23456789';let p='';for(let i=0;i<5;i++)p+=a[Math.floor(Math.random()*a.length)];for(let i=0;i<4;i++)p+=d[Math.floor(Math.random()*d.length)];return p};
 const settings0=await S.settings().catch(()=>({}));
 if(settings0.familyName){$('#lbrand').textContent=settings0.familyName;$('#sbrand').textContent=settings0.familyName}
 $('#lmode').innerHTML=LIVE?'<span class="mode live">● متصل بقاعدة البيانات</span>':'<span class="mode">وضع تجريبي — البيانات تُحفظ على هذا الجهاز فقط</span>';
-$('#lhint').textContent=LIVE?'الدخول متاح للحسابات التي أضافها المدير العام فقط.':'للتجربة: اكتب أي إيميل واضغط دخول (بدون كلمة مرور).';
-if(!LIVE){$('#lsignup').classList.add('hidden');$('#lform').email.value='admin@demo'}
+$('#lhint').textContent=LIVE?'ادخل باسم المستخدم وكلمة المرور اللي وصلتك من إدارة الموقع.':'للتجربة: اكتب أي إيميل واضغط دخول (بدون كلمة مرور).';
+if(!LIVE){$('#lform').email.value='admin@demo'}
 async function enter(){ME=await S.me();if(!ME||ME.role==='none'||!ME.role){if(LIVE&&ME)toast('هذا الحساب غير مضاف كمدير. اطلب من المدير العام إضافته.');return false}$('#login').classList.add('hidden');$('#app').classList.remove('hidden');await loadAll();buildNav();go(location.hash.slice(1)||'dash');return true}
-$('#lform').onsubmit=async e=>{e.preventDefault();try{await S.signIn(e.target.email.value.trim().toLowerCase(),e.target.password.value);await enter()}catch(err){toast('تعذّر الدخول: '+err.message)}};
+$('#lform').onsubmit=async e=>{e.preventDefault();try{await S.signIn(loginId(e.target.email.value),e.target.password.value);await enter()}catch(err){toast('تعذّر الدخول: '+err.message)}};
 $('#lsignup').onclick=async()=>{const f=$('#lform');if(!f.email.value||f.password.value.length<6)return toast('اكتب إيميلك وكلمة مرور من 6 أحرف على الأقل');try{await S.signUp(f.email.value.trim().toLowerCase(),f.password.value);toast('تم إنشاء الحساب. إذا طُلب منك تأكيد الإيميل افتح بريدك ثم سجّل الدخول.');await enter()}catch(err){toast(err.message)}};
 $('#logout').onclick=async e=>{e.preventDefault();await S.signOut();location.reload()};
 if(LIVE&&await S.me())await enter();
@@ -209,7 +213,7 @@ const VIEWS=[['dash','لوحة المعلومات','dash',null],['people','ال�
 function buildNav(){const nn=SUBS.filter(s=>s.status==='new').length;$('#nav').innerHTML=VIEWS.filter(v=>!v[3]||can(v[3])).map(v=>`<a data-v="${v[0]}">${svgI(v[2])}<span>${v[1]}</span>${v[0]==='subs'&&nn?`<span class="cnt">${nn}</span>`:''}</a>`).join('');
   document.querySelectorAll('#nav a').forEach(a=>a.onclick=()=>{go(a.dataset.v);$('#side').classList.remove('open')});
   $('#smode').innerHTML=LIVE?'<span class="mode live">متصل</span>':'<span class="mode">تجريبي</span>';
-  $('#me').innerHTML=`<div style="text-align:left"><b>${esc(ME.name||ME.email)}</b><br><small style="color:var(--muted)">${ROLES[ME.role]||ME.role}</small></div><div class="av">${esc((ME.name||ME.email||'?')[0])}</div>`}
+  $('#me').innerHTML=`<div style="text-align:left"><b>${esc(ME.name||uname(ME.email))}</b><br><small style="color:var(--muted)">${ROLES[ME.role]||ME.role}</small></div><div class="av">${esc((ME.name||ME.email||'?')[0])}</div>`}
 $('#burger').onclick=()=>$('#side').classList.toggle('open');
 let CUR='';function go(v){const def=VIEWS.find(x=>x[0]===v)||VIEWS[0];if(def[3]&&!can(def[3]))return go('dash');CUR=def[0];if(location.hash.slice(1)!==def[0])history.replaceState(null,'','#'+def[0]);document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===def[0]));$('#vtitle').textContent=def[1];R[def[0]]()}
 
@@ -228,7 +232,7 @@ R.dash=async()=>{const live=P.filter(p=>!p._dead),mart=P.filter(p=>p.m),countrie
     <div class="card"><h3>اكتمال البيانات</h3>${[['تاريخ الميلاد',p=>p.bd],['مكان الإقامة',p=>p.res||p._dead],['الدراسة أو العمل',p=>p.edu||p.work],['صورة شخصية',p=>p.photo]].map(([l,f])=>`<div class="meter"><div><span>${l}</span><b>${pct(f)}%</b></div><div class="tr"><i style="width:${pct(f)}%"></i></div></div>`).join('')}<small style="color:var(--muted)">كلما زادت النسبة، صارت الشجرة أغنى.</small></div>
     <div class="card"><h3>آخر الطلبات</h3><div class="list">${nn.slice(0,5).map(s=>`<div class="it"><span class="chip new">${TYPES[s.type]||s.type}</span><div>${esc(s.sender_name)} — ${esc(s.person_ref||'')}<br><small>${new Date(s.created_at).toLocaleString('ar')}</small></div></div>`).join('')||'<div class="empty">لا توجد طلبات جديدة</div>'}</div></div>
   </div>
-  <div class="card" style="margin-top:16px"><h3>آخر التعديلات</h3><div class="list">${act.map(a=>`<div class="it"><div>${esc(a.action)} <b>${esc(a.target||'')}</b><br><small>${esc(a.user_email||'')} · ${new Date(a.at).toLocaleString('ar')}</small></div></div>`).join('')||'<div class="empty">لا توجد تعديلات بعد</div>'}</div></div>`;
+  <div class="card" style="margin-top:16px"><h3>آخر التعديلات</h3><div class="list">${act.map(a=>`<div class="it"><div>${esc(a.action)} <b>${esc(a.target||'')}</b><br><small>${esc(uname(a.user_email))} · ${new Date(a.at).toLocaleString('ar')}</small></div></div>`).join('')||'<div class="empty">لا توجد تعديلات بعد</div>'}</div></div>`;
   $('#qAdd')&&($('#qAdd').onclick=()=>editPerson(null));$('#qSubs')&&($('#qSubs').onclick=()=>go('subs'));$('#qPage')&&($('#qPage').onclick=()=>{go('pages');setTimeout(()=>editPage(null),50)})};
 
 /* ---- people ---- */
@@ -372,23 +376,49 @@ function editPage(pg){const isNew=!pg;pg=pg||{title:'',slug:'',content:'',link:'
 
 /* ---- users ---- */
 R.users=async()=>{const L=await S.admins();
-  $('#view').innerHTML=`<div class="note">${LIVE?'أضف إيميل الشخص وحدد صلاحياته، ثم أرسل له رابط لوحة التحكم ليضغط «أول مرة؟ أنشئ كلمة مرور» بنفس الإيميل.':'في الوضع التجريبي تُحفظ القائمة على هذا الجهاز فقط. بعد ربط قاعدة البيانات تعمل الصلاحيات فعليًا.'}</div>
+  $('#view').innerHTML=`<div class="note">${LIVE?'أضف الشخص باسم مستخدم وكلمة مرور، ثم أرسل له بيانات الدخول — يدخل مباشرة بدون إيميل أو تسجيل.':'في الوضع التجريبي تُحفظ القائمة على هذا الجهاز فقط.'}</div>
   <div class="tools"><button class="btn pri" id="uAdd">+ إضافة مستخدم</button></div>
-  <div class="tablewrap"><table><thead><tr><th>الاسم</th><th>الإيميل</th><th>الدور</th><th>الصلاحيات</th><th></th></tr></thead><tbody>${L.map(u=>`<tr><td><b>${esc(u.name||'—')}</b></td><td dir="ltr" style="text-align:right">${esc(u.email)}</td><td>${ROLES[u.role]||u.role}</td><td>${u.role==='owner'?'الكل':(u.perms||[]).map(k=>`<span class="chip">${PERMS[k]}</span>`).join(' ')}</td><td><button class="btn sm" data-u="${esc(u.email)}">تعديل</button></td></tr>`).join('')}</tbody></table></div>`;
+  <div class="tablewrap"><table><thead><tr><th>الاسم</th><th>اسم المستخدم</th><th>الدور</th><th>الصلاحيات</th><th></th></tr></thead><tbody>${L.map(u=>`<tr><td><b>${esc(u.name||'—')}</b>${u.contact?`<br><small style="color:var(--muted)" dir="ltr">${esc(u.contact)}</small>`:''}</td><td dir="ltr" style="text-align:right">${esc(uname(u.email))}</td><td>${ROLES[u.role]||u.role}</td><td>${u.role==='owner'?'الكل':(u.perms||[]).map(k=>`<span class="chip">${PERMS[k]}</span>`).join(' ')}</td><td><button class="btn sm" data-u="${esc(u.email)}">تعديل</button></td></tr>`).join('')}</tbody></table></div>`;
   $('#uAdd').onclick=()=>editUser(null);document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>editUser(L.find(x=>x.email===b.dataset.u)))};
 function editUser(u){const isNew=!u;u=u||{email:'',name:'',role:'editor',perms:S.ROLE_PERMS.editor};
   openDrawer(`<div class="dh"><h3>${isNew?'مستخدم جديد':'تعديل المستخدم'}</h3><button class="btn sm" data-x>✕</button></div><form class="db" id="uf">
-  <label class="f">الاسم<input name="name" value="${esc(u.name||'')}"></label><label class="f">الإيميل<input name="email" type="email" dir="ltr" required value="${esc(u.email)}" ${isNew?'':'readonly'}></label>
+  <label class="f">الاسم<input name="name" value="${esc(u.name||'')}" placeholder="مثال: أحمد الدجني"></label>
+  <label class="f">اسم المستخدم <small style="color:var(--muted)">(بالإنجليزي، بدون مسافات)</small><input name="user" dir="ltr" autocapitalize="none" spellcheck="false" value="${esc(uname(u.email))}" ${isNew?'':'readonly'} placeholder="ahmad"></label>
+  <label class="f">${isNew?'كلمة المرور':'كلمة مرور جديدة <small style="color:var(--muted)">(اتركها فارغة إذا لا تريد تغييرها)</small>'}<div style="display:flex;gap:8px"><input name="pass" dir="ltr" style="flex:1" value="${isNew?genPass():''}" autocomplete="new-password"><button type="button" class="btn sm" id="uGen">توليد</button></div></label>
+  <label class="f">إيميل للتواصل <small style="color:var(--muted)">(اختياري)</small><input name="contact" type="email" dir="ltr" value="${esc(u.contact||'')}"></label>
   <label class="f">الدور<select name="role">${Object.entries(ROLES).map(([k,l])=>`<option value="${k}" ${u.role===k?'selected':''}>${l}</option>`).join('')}</select></label>
   <fieldset><legend>الصلاحيات</legend><div class="checks">${Object.entries(PERMS).map(([k,l])=>`<label><input type="checkbox" name="perm" value="${k}" ${(u.perms||[]).includes(k)||u.role==='owner'?'checked':''}> ${l}</label>`).join('')}</div></fieldset></form>
   <div class="df"><button class="btn pri" id="uSave">حفظ</button><button class="btn" data-x>إلغاء</button>${!isNew?'<button class="btn danger" id="uDel" style="margin-right:auto">حذف</button>':''}</div>`);
   document.querySelectorAll('[data-x]').forEach(b=>b.onclick=closeDrawer);const U=$('#uf');
+  $('#uGen').onclick=()=>U.pass.value=genPass();
   U.role.onchange=()=>{const ps=S.ROLE_PERMS[U.role.value];if(ps)U.querySelectorAll('[name=perm]').forEach(c=>c.checked=ps.includes(c.value))};
-  $('#uSave').onclick=async()=>{if(!U.email.value)return toast('اكتب الإيميل');const perms=[...U.querySelectorAll('[name=perm]:checked')].map(c=>c.value);await S.saveAdmin({email:U.email.value.trim().toLowerCase(),name:U.name.value.trim(),role:U.role.value,perms});await log(isNew?'إضافة مستخدم':'تعديل صلاحيات',U.email.value);closeDrawer();toast('تم الحفظ');R.users()};
-  $('#uDel')&&($('#uDel').onclick=async()=>{if(u.email===ME.email)return toast('لا يمكنك حذف حسابك');if(!confirmBox('حذف المستخدم؟'))return;await S.deleteAdmin(u.email);await log('حذف مستخدم',u.email);closeDrawer();R.users()})}
+  $('#uSave').onclick=async()=>{
+    const user=U.user.value.trim().toLowerCase(),pass=U.pass.value.trim(),name=U.name.value.trim();
+    if(isNew&&!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(user))return toast('اسم المستخدم: 3 أحرف على الأقل، حروف إنجليزية وأرقام فقط');
+    if((isNew||pass)&&pass.length<6)return toast('كلمة المرور 6 أحرف على الأقل');
+    const email=isNew?loginId(user):u.email,perms=[...U.querySelectorAll('[name=perm]:checked')].map(c=>c.value);
+    if(isNew&&(await S.admins()).some(x=>x.email===email))return toast('اسم المستخدم مستخدم من قبل، اختر اسمًا آخر');
+    const b=$('#uSave');b.disabled=true;b.textContent='جارٍ الحفظ…';
+    try{
+      if(isNew)await S.createLogin(email,pass);else if(pass)await S.setPassword(email,pass);
+      await S.saveAdmin({email,name,role:U.role.value,perms,contact:U.contact.value.trim()||null});
+      await log(isNew?'إضافة مستخدم':(pass?'تعديل المستخدم وكلمة المرور':'تعديل صلاحيات'),uname(email));
+      if(isNew||pass)showCreds(name,uname(email),pass);else{closeDrawer();toast('تم الحفظ')}
+      R.users();
+    }catch(err){toast('تعذّر الحفظ: '+err.message);b.disabled=false;b.textContent='حفظ'}};
+  $('#uDel')&&($('#uDel').onclick=async()=>{if(u.email===ME.email)return toast('لا يمكنك حذف حسابك');if(!confirmBox('حذف المستخدم؟ لن يستطيع الدخول للوحة التحكم بعد ذلك.'))return;await S.deleteAdmin(u.email);await log('حذف مستخدم',uname(u.email));closeDrawer();R.users()})}
+function showCreds(name,user,pass){
+  const link=location.href.split('#')[0].split('?')[0];
+  const msg=`السلام عليكم${name?' '+name:''}،\nهذه بيانات دخولك للوحة تحكم موقع شجرة العائلة:\n\nالرابط: ${link}\nاسم المستخدم: ${user}\nكلمة المرور: ${pass}`;
+  openDrawer(`<div class="dh"><h3>تم الحفظ ✓</h3><button class="btn sm" data-x>✕</button></div><div class="db">
+   <p style="margin-top:0">أرسل هذه البيانات للشخص، ويدخل مباشرة:</p>
+   <textarea readonly id="credTxt" style="width:100%;min-height:230px;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);line-height:1.9">${esc(msg)}</textarea></div>
+   <div class="df"><button class="btn pri" id="cCopy">نسخ</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">إرسال واتساب</a><button class="btn" data-x>إغلاق</button></div>`);
+  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=closeDrawer);
+  $('#cCopy').onclick=async()=>{try{await navigator.clipboard.writeText(msg);toast('تم النسخ')}catch(e){$('#credTxt').select();document.execCommand('copy');toast('تم النسخ')}}}
 
 /* ---- activity ---- */
-R.log=async()=>{const L=await S.activity().catch(()=>[]);$('#view').innerHTML=`<div class="tablewrap"><table><thead><tr><th>الوقت</th><th>المستخدم</th><th>الإجراء</th><th>على</th></tr></thead><tbody>${L.map(a=>`<tr><td>${new Date(a.at).toLocaleString('ar')}</td><td dir="ltr" style="text-align:right">${esc(a.user_email||'')}</td><td>${esc(a.action)}</td><td>${esc(a.target||'')}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">لا يوجد سجل بعد</td></tr>'}</tbody></table></div>`};
+R.log=async()=>{const L=await S.activity().catch(()=>[]);$('#view').innerHTML=`<div class="tablewrap"><table><thead><tr><th>الوقت</th><th>المستخدم</th><th>الإجراء</th><th>على</th></tr></thead><tbody>${L.map(a=>`<tr><td>${new Date(a.at).toLocaleString('ar')}</td><td dir="ltr" style="text-align:right">${esc(uname(a.user_email))}</td><td>${esc(a.action)}</td><td>${esc(a.target||'')}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">لا يوجد سجل بعد</td></tr>'}</tbody></table></div>`};
 
 /* ---- settings ---- */
 R.settings=()=>{const s=SETTINGS;
