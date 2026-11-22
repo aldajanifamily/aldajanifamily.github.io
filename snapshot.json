@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T15:29:08Z",
+  "generated_at": "2026-11-22T07:29:13Z",
   "people": [
     {
       "id": 0,
@@ -86,7 +86,7 @@
       "gender": "m",
       "birth": "1932",
       "death": "1950",
-      "martyr": true,
+      "martyr": false,
       "martyr_info": {
         "photos": []
       },
@@ -216,7 +216,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221271658-IMG_0867.jpg"
+        ]
       },
       "spouses": [
         "محمود خميس صيدم"
@@ -372,7 +374,9 @@
       "death": "27-9-2018",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221715652-IMG_0872.jpeg"
+        ]
       },
       "spouses": [
         "كفاح"
@@ -1145,7 +1149,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795220549439-IMG_0862.jpeg"
+        ]
       },
       "spouses": [
         "منار فاروق كامل النونو"
@@ -1275,7 +1281,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795220661202-IMG_0861.jpeg"
+        ]
       },
       "spouses": [
         "الشهيدة شامة بسام محمود أحمد"
@@ -1301,7 +1309,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795220674137-IMG_0860.jpeg"
+        ]
       },
       "spouses": [
         "الشهيدة سهاد إياد علي الدجني"
@@ -1431,6 +1441,14 @@
       "death": null,
       "martyr": false,
       "martyr_info": {
+        "inlaw": {
+          "ماهر حليوه": {
+            "name": "ماهر حليوة",
+            "photos": [
+              "https://ijswhycsvaanowexnxcd.supabase.co/storage/v1/object/public/media/media/1795258067100-492424165_3139271852880838_3495244801802216904_n.jpg"
+            ]
+          }
+        },
         "photos": []
       },
       "spouses": [
@@ -1509,6 +1527,14 @@
       "death": null,
       "martyr": false,
       "martyr_info": {
+        "inlaw": {
+          "رفيق مازن": {
+            "name": "رفيق مازن المزنر",
+            "photos": [
+              "https://ijswhycsvaanowexnxcd.supabase.co/storage/v1/object/public/media/media/1795257980735-903503986_3773869602754390_7804169911522113710_n.jpeg"
+            ]
+          }
+        },
         "photos": []
       },
       "spouses": [
@@ -1535,7 +1561,9 @@
       "death": "19-5-2021",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795104448489-187700794_2943286229326680_3399907050992441147_n.jpg"
+        ]
       },
       "spouses": [],
       "father_ext": "محمد أمين إبراهيم الكردي",
@@ -1731,9 +1759,11 @@
       "gender": "m",
       "birth": "27-12-1989",
       "death": "15-5-2022",
-      "martyr": false,
+      "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795103777902-WhatsApp_Image_2026-11-19_at_12.54.44_PM.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -1757,9 +1787,19 @@
       "death": null,
       "martyr": false,
       "martyr_info": {
+        "inlaw": {
+          "محمد جمال": {
+            "name": "محمد جمال أبو سعدة",
+            "photos": [
+              "https://ijswhycsvaanowexnxcd.supabase.co/storage/v1/object/public/media/media/1795258425247-482211521_1429070811400815_6192779138569140724_n.jpg"
+            ]
+          }
+        },
         "photos": []
       },
-      "spouses": [],
+      "spouses": [
+        "الشهيد محمد جمال أبو سعدة"
+      ],
       "father_ext": null,
       "mother_ext": "خالدية",
       "residence": "غزة",
@@ -1829,7 +1869,9 @@
       "death": "26-9-2025",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795103741181-WhatsApp_Image_2026-11-19_at_12.54.46_PM.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -1975,7 +2017,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795104413588-312213243_3348504118804887_4463271354747468111_n.jpg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -2023,7 +2067,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795104488594-283925720_548129963640554_3320005294931022018_n.jpg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -2047,7 +2093,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795104590609-487376242_2087753441738319_1348394790238830113_n.jpg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -2071,6 +2119,14 @@
       "death": null,
       "martyr": false,
       "martyr_info": {
+        "inlaw": {
+          "اسماعيل جمال": {
+            "name": "إسماعيل جمال أبو سعدة",
+            "photos": [
+              "https://ijswhycsvaanowexnxcd.supabase.co/storage/v1/object/public/media/media/1795257832437-329136317_646866380542240_6599122305173732937_n.jpg"
+            ]
+          }
+        },
         "photos": []
       },
       "spouses": [
@@ -2149,11 +2205,17 @@
       "death": null,
       "martyr": false,
       "martyr_info": {
+        "inlaw": {
+          "علاء لبيب": {
+            "name": "علاء لبيب الطباطيبي",
+            "photos": [
+              "https://ijswhycsvaanowexnxcd.supabase.co/storage/v1/object/public/media/media/1795257844930-244416555_1549438982061065_1037209386157703669_n.jpg"
+            ]
+          }
+        },
         "photos": []
       },
-      "spouses": [
-        "الشهيد علاء لبيب الطباطيبي"
-      ],
+      "spouses": [],
       "father_ext": "عماد أمين الحديدي",
       "mother_ext": null,
       "residence": "غزة",
@@ -2238,7 +2300,7 @@
       "work": null,
       "notes": null,
       "bio": null,
-      "photo": null,
+      "photo": "media/1795279872246-EF79A3FB-0A3D-418B-9EEF-84B04589AEF1.jpg",
       "hidden_fields": [],
       "sort": 0
     },
@@ -2299,7 +2361,9 @@
       "death": "18-3-2025",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221446405-IMG_0869.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -2323,7 +2387,9 @@
       "death": "8-11-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795104039633-482218709_697556952594705_9146769507866032309_n.jpg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -2371,7 +2437,9 @@
       "death": "18-3-2025",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795104094825-907406914_1768663944195969_5698264312725390963_n.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -4786,10 +4854,12 @@
       "name": "نوال",
       "gender": "f",
       "birth": null,
-      "death": null,
+      "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221098382-IMG_0866.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": "عبد الله أحمد ابو ندى",
@@ -4810,10 +4880,12 @@
       "name": "أحمد",
       "gender": "m",
       "birth": null,
-      "death": null,
+      "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221950274-IMG_0863.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": "عبد الله أحمد ابو ندى",
@@ -4834,10 +4906,12 @@
       "name": "أنس",
       "gender": "m",
       "birth": null,
-      "death": null,
+      "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221965146-IMG_0865.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": "عبد الله أحمد ابو ندى",
@@ -4858,10 +4932,12 @@
       "name": "محمد",
       "gender": "m",
       "birth": null,
-      "death": null,
+      "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221977468-IMG_0864.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": "عبد الله أحمد ابو ندى",
@@ -4957,7 +5033,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221930794-IMG_0875.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -4981,7 +5059,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221891183-IMG_0875.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -5005,7 +5085,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221654605-IMG_0871.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -5029,7 +5111,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221875831-IMG_0875.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -5053,7 +5137,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221834294-IMG_0874.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -5077,7 +5163,9 @@
       "death": "16-10-2023",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221821656-IMG_0873.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -5869,7 +5957,9 @@
       "death": "16-1-2025",
       "martyr": true,
       "martyr_info": {
-        "photos": []
+        "photos": [
+          "media/1795221399315-IMG_0868.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": "الشهيد رفيق مازن المزنر",
@@ -6226,10 +6316,13 @@
       "name": "عماد الدين",
       "gender": "m",
       "birth": "16-9-2019",
-      "death": null,
-      "martyr": false,
+      "death": "16-10-2026",
+      "martyr": true,
       "martyr_info": {
-        "photos": []
+        "place": "مصر",
+        "photos": [
+          "media/1795103509410-WhatsApp_Image_2026-11-19_at_12.51.19_PM.jpeg"
+        ]
       },
       "spouses": [],
       "father_ext": null,
@@ -6685,6 +6778,14 @@
       "death": null,
       "martyr": false,
       "martyr_info": {
+        "inlaw": {
+          "علاء لبيب": {
+            "name": "علاء لبيب الطباطيبي",
+            "photos": [
+              "https://ijswhycsvaanowexnxcd.supabase.co/storage/v1/object/public/media/media/1795259199905-244416555_1549438982061065_1037209386157703669_n.jpg"
+            ]
+          }
+        },
         "photos": []
       },
       "spouses": [],
@@ -7367,6 +7468,128 @@
       "education": null,
       "work": null,
       "notes": "وُلد في كوريتيبا",
+      "bio": null,
+      "photo": null,
+      "hidden_fields": [],
+      "sort": 0
+    },
+    {
+      "id": 301,
+      "parent_id": 68,
+      "name": "عبد الله",
+      "gender": "m",
+      "birth": null,
+      "death": null,
+      "martyr": false,
+      "martyr_info": {
+        "photos": []
+      },
+      "spouses": [],
+      "father_ext": null,
+      "mother_ext": null,
+      "residence": null,
+      "city": null,
+      "education": null,
+      "work": null,
+      "notes": null,
+      "bio": null,
+      "photo": null,
+      "hidden_fields": [],
+      "sort": 0
+    },
+    {
+      "id": 302,
+      "parent_id": 68,
+      "name": "مصطفى",
+      "gender": "m",
+      "birth": null,
+      "death": "04-08-2025",
+      "martyr": true,
+      "martyr_info": {
+        "photos": [
+          "media/1795258491472-597880157_1646569069650987_9040844043376599239_n.jpg"
+        ]
+      },
+      "spouses": [],
+      "father_ext": null,
+      "mother_ext": null,
+      "residence": null,
+      "city": null,
+      "education": null,
+      "work": null,
+      "notes": null,
+      "bio": null,
+      "photo": null,
+      "hidden_fields": [],
+      "sort": 0
+    },
+    {
+      "id": 303,
+      "parent_id": 68,
+      "name": "جود",
+      "gender": "m",
+      "birth": null,
+      "death": null,
+      "martyr": false,
+      "martyr_info": {
+        "photos": []
+      },
+      "spouses": [],
+      "father_ext": null,
+      "mother_ext": null,
+      "residence": null,
+      "city": null,
+      "education": null,
+      "work": null,
+      "notes": null,
+      "bio": null,
+      "photo": null,
+      "hidden_fields": [],
+      "sort": 0
+    },
+    {
+      "id": 304,
+      "parent_id": 68,
+      "name": "براء",
+      "gender": "m",
+      "birth": null,
+      "death": null,
+      "martyr": false,
+      "martyr_info": {
+        "photos": []
+      },
+      "spouses": [],
+      "father_ext": null,
+      "mother_ext": null,
+      "residence": null,
+      "city": null,
+      "education": null,
+      "work": null,
+      "notes": null,
+      "bio": null,
+      "photo": null,
+      "hidden_fields": [],
+      "sort": 0
+    },
+    {
+      "id": 305,
+      "parent_id": 64,
+      "name": "محمد",
+      "gender": "m",
+      "birth": null,
+      "death": null,
+      "martyr": false,
+      "martyr_info": {
+        "photos": []
+      },
+      "spouses": [],
+      "father_ext": "أحمد محمد خصوان",
+      "mother_ext": null,
+      "residence": null,
+      "city": null,
+      "education": null,
+      "work": null,
+      "notes": null,
       "bio": null,
       "photo": null,
       "hidden_fields": [],
